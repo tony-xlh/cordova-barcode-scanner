@@ -1,25 +1,73 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.dynamsoft.dbrjs" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.dynamsoft.dbrjs" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>DBRJS</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        A sample Apache Cordova iOSRTC application that use cordova-plugin-iosrtc
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="support+cordova-rtc@sylaps.com" href="https://github.com/cordova-rtc">
+        Cordova-RTC Team
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <access origin="https://*.ngrok.io/*" subdomains="true" />
+    <allow-navigation href="https://*.ngrok.io/*" />
+    <preference name="AppendUserAgent" value="iOSRTC Sample" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="Fullscreen" value="false" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <config-file parent="/*" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.CAMERA" />
+        </config-file>
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+        <preference name="WKWebViewOnly" value="true" />
+        <preference name="Orientation" value="all" />
+        <preference name="target-device" value="universal" />
+        <preference name="StatusBarOverlaysWebView" value="false" />
+        <preference name="StatusBarBackgroundColor" value="#000000" />
+        <preference name="StatusBarStyle" value="blacktranslucent" />
+        <preference name="BackgroundColor" value="#000000" />
+        <preference name="DetectMediaTypes" value="true" />
+        <preference name="WebViewBounce" value="false" />
+        <preference name="KeyboardShrinksView" value="true" />
+        <preference name="allowInlineMediaPlayback" value="true" />
+        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        <preference name="AllowBackForwardNavigationGestures" value="true" />
+        <preference name="Allow3DTouchLinkPreview" value="false" />
+        <preference name="AllowInlineMediaPlayback" value="true" />
+        <feature name="CDVWKWebViewEngine">
+            <param name="ios-package" value="CDVWKWebViewEngine" />
+        </feature>
+        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        <config-file parent="NSCameraUsageDescription" target="*-Info.plist">
+            <string>This application requires access to the devices camera to record and send the users camera image via video chat functionality</string>
+        </config-file>
+        <config-file parent="NSPhotoLibraryUsageDescription" target="*-Info.plist">
+            <string>TThis application requires access to the devices image library to display an image as the users profile picture and/or send images via message chat functionality</string>
+        </config-file>
+        <config-file parent="NSMicrophoneUsageDescription" target="*-Info.plist">
+            <string>This application requires access to the devices microphone to record and send the users voice message via video/voice chat functionality</string>
+        </config-file>
+        <config-file parent="NSBluetoothAlwaysUsageDescription" target="*-Info.plist">
+            <string>This application requires access to the bluetooth wireless headphones and microphone to broadcast or record and send the users voice message via video/voice chat functionality</string>
+        </config-file>
     </platform>
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.4" />
+    <plugin name="cordova-plugin-background-mode" spec="^0.7.3" />
+    <plugin name="cordova-custom-config" spec="^5.1.0" />
+    <plugin name="cordova-plugin-iosrtc" spec="https://gitee.com/xulihang/cordova-plugin-iosrtc#master">
+        <variable name="MANUAL_INIT_AUDIO_DEVICE" value="FALSE" />
+    </plugin>
+    <engine name="android" spec="^8.1.0" />
+    <engine name="browser" spec="^5.0.4" />
 </widget>
