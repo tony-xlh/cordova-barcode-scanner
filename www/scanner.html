@@ -10,7 +10,8 @@
 </head>
 <body style="background-color:transparent;">
 <div>
-    <video class="camera" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline style="z-index:-1;width:100%;height:100%;position:absolute;left:0;top:0;object-fit:fill;"></video>
+    <svg style="width:100%;height:100%;position:absolute;left:0;top:0;"> </svg>
+    <video class="camera" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline style="z-index:-1;width:100%;height:100%;position:absolute;left:0;top:0;"></video>
     <select id="cameraselect" style="display:none;position:absolute;"></select>
     <style>
         .results-container {
@@ -25,6 +26,11 @@
             color: white;
             text-shadow: 1px 1px black;
         }
+        .barcode-polygon {
+            fill:rgba(85,240,40,0.5);          
+            stroke:green;
+            stroke-width:1;
+        }
     </style>
 </div>
 <div class="results-container">
@@ -36,10 +42,12 @@ var interval = null;
 var decoding = false;
 let reader = null;
 initDBR();
-
+var localStream;
 var platform = "";
 document.getElementById("cameraselect").onchange=onCameraChanged;
 document.addEventListener('deviceready', onDeviceReady, false);
+
+document.getElementsByClassName("camera")[0].addEventListener('loadeddata',onPlayed, false);
 
 async function initDBR(){
     reader = await Dynamsoft.DBR.BarcodeReader.createInstance();
@@ -81,11 +89,16 @@ function play(deviceId) {
         }
     }
     
+    //constraints.video.width = { ideal: 1280 };
+    //constraints.video.height = { ideal: 1280 };
+    //console.log(constraints);
+    
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-
-        var localVideoEl = document.getElementsByClassName("camera")[0];
+        localStream = stream;
+        var camera = document.getElementsByClassName("camera")[0];
         // Attach local stream to video element
-        localVideoEl.srcObject = stream;
+        camera.srcObject = stream;
+        
         startDecoding();
 
     }).catch(function(err) {
@@ -136,6 +149,12 @@ async function captureAndDecode(){
     }
 }
 
+function onPlayed(){
+    var camera = document.getElementsByClassName("camera")[0];
+    updateSVGViewBox(camera.videoWidth,camera.videoHeight);
+    alert("Current resolution: "+camera.videoWidth+"x"+camera.videoHeight);
+}
+
 function onFrameRead(results){
     var resultsPre = document.getElementById("results-pre");
     var content = "";
@@ -149,8 +168,36 @@ function onFrameRead(results){
         content = content + results[i].barcodeText + "\n";
     }
     resultsPre.innerHTML = content+"\n";
+    showOverlayOnSVG(results);
 }
 
+function updateSVGViewBox(width,height){
+    var svg = document.getElementsByTagName("svg")[0];
+    svg.setAttribute("viewBox","0 0 "+width+" "+height);
+}
+
+function showOverlayOnSVG(results){
+    var svg = document.getElementsByTagName("svg")[0];
+    svg.innerHTML=""
+    for(let i = 0; i < results.length; i++){
+        var result = results[i];
+        var points = getPointsData(result.localizationResult);
+        var a = document.createElementNS("http://www.w3.org/2000/svg","a");
+        var polygon = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+        polygon.setAttribute("points",points);
+        polygon.setAttribute("class","barcode-polygon");
+        a.append(polygon)
+        svg.append(a);
+    }
+}
+
+function getPointsData(lr){
+    var pointsData = lr.x1+","+lr.y1 + " ";
+    pointsData = pointsData+ lr.x2+","+lr.y2 + " ";
+    pointsData = pointsData+ lr.x3+","+lr.y3 + " ";
+    pointsData = pointsData+ lr.x4+","+lr.y4;
+    return pointsData;
+}
 </script>
 </body>
 </html>
