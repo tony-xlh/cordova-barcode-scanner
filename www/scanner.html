@@ -1,12 +1,12 @@
 <html>
-<body>
 <head>
-<meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-<link rel="stylesheet" href="css/index.css">
-<script src="js/adapter.js"></script>
-<script src="js/utils.js"></script>
-<script type="text/javascript" src="cordova.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@8.6.3/dist/dbr.js"></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src * blob:; script-src * 'unsafe-eval' 'unsafe-inline' blob:; style-src * 'unsafe-inline'; media-src *; img-src 'self' data:">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/adapter.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@8.6.3/dist/dbr.js"></script>
 </head>
 <body style="background-color:transparent;">
 <div>
@@ -41,12 +41,10 @@
 var interval = null;
 var decoding = false;
 let reader = null;
-initDBR();
 var localStream;
 var platform = "";
 document.getElementById("cameraselect").onchange=onCameraChanged;
 document.addEventListener('deviceready', onDeviceReady, false);
-
 document.getElementsByClassName("camera")[0].addEventListener('loadeddata',onPlayed, false);
 
 async function initDBR(){
@@ -61,6 +59,7 @@ function onDeviceReady() {
         loadDevices();
         document.getElementById("cameraselect").style.display = "";
     }
+    initDBR();
     play();
 }
 
@@ -98,12 +97,10 @@ function play(deviceId) {
         var camera = document.getElementsByClassName("camera")[0];
         // Attach local stream to video element
         camera.srcObject = stream;
-        
-        startDecoding();
 
     }).catch(function(err) {
         console.error('getUserMediaError', err, err.stack);
-alert("error");
+        alert("getUserMediaError");
         alert(err.stack);
     });
 }
@@ -131,7 +128,7 @@ function onCameraChanged(){
 
 function startDecoding(){
     clearInterval(interval)
-    interval = setInterval(captureAndDecode, 10);
+    interval = setInterval(captureAndDecode, 1000);
 }
 
 async function captureAndDecode(){
@@ -141,18 +138,37 @@ async function captureAndDecode(){
             //Still decoding. Skip.
             return;
         }
-        decoding=true;
-        var results = await reader.decode(video);
-        decoding=false;
-        console.log(results);
-        onFrameRead(results);
+        
+        if (platform == "iOS"){
+            video.render.save(function (data) {
+                alert(data);
+                decode(data);
+            });
+        }else{
+            decode(video);
+        }
     }
+}
+
+async function decode(data){
+    decoding=true;
+    var results = [];
+    try{
+        results = await reader.decode(data);
+    }catch (ex){
+        alert(ex);
+        alert(ex.stack);
+    }
+    decoding=false;
+    console.log(results);
+    onFrameRead(results);
 }
 
 function onPlayed(){
     var camera = document.getElementsByClassName("camera")[0];
     updateSVGViewBox(camera.videoWidth,camera.videoHeight);
     alert("Current resolution: "+camera.videoWidth+"x"+camera.videoHeight);
+    startDecoding();
 }
 
 function onFrameRead(results){
@@ -198,6 +214,7 @@ function getPointsData(lr){
     pointsData = pointsData+ lr.x4+","+lr.y4;
     return pointsData;
 }
+
 </script>
 </body>
 </html>

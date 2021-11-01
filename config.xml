@@ -8,10 +8,11 @@
         Cordova-RTC Team
     </author>
     <content src="index.html" />
-    <access origin="*" />
-    <access origin="https://*.ngrok.io/*" subdomains="true" />
+    <access origin="*" subdomains="true" />
     <allow-navigation href="https://*.ngrok.io/*" />
     <preference name="AppendUserAgent" value="iOSRTC Sample" />
+    <allow-intent href="ws://*/*" />
+    <allow-intent href="wss://*/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
