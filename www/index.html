@@ -43,11 +43,12 @@
             <div id="deviceready" class="blink">
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
-                <button onclick="GotoAndroidScanner()">Start Barcode Scanner (Android)</button>
-                <button onclick="GotoiOSScanner()">Start Barcode Scanner (iOS)</button>
+                <button onclick="GotoCustomScanner()">Start Scanner (Custom)</button>
+                <button onclick="GotoBuiltinScanner()">Start Scanner (Built-in SDK)</button>
             </div>
         </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
+        <script src="js/utils.js"></script>
     </body>
 </html>

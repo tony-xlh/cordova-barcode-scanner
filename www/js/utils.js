@@ -8,6 +8,11 @@ function initForPlatforms(){
                 cordova.plugins.iosrtc.registerGlobals();
             }
     }
+    return platform;
+}
+
+function askForAndroidPermissions(){
+    var platform = window.device.platform;
     if (platform == 'Android'){
         alert("is android");
         var permissions = cordova.plugins.permissions;

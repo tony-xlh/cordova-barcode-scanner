@@ -1,12 +1,17 @@
-<!DOCTYPE html>
 <html>
+<body>
 <head>
-    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-    <link rel="stylesheet" href="css/index.css">
-    <script src="js/adapter.js"></script>
-    <script src="js/utils.js"></script>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@8.6.3/dist/dbr.js"></script>
+<meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+<link rel="stylesheet" href="css/index.css">
+<script src="js/adapter.js"></script>
+<script src="js/utils.js"></script>
+<script type="text/javascript" src="cordova.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@8.6.3/dist/dbr.js"></script>
+</head>
+<body style="background-color:transparent;">
+<div>
+    <video class="camera" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline style="z-index:-1;width:100%;height:100%;position:absolute;left:0;top:0;object-fit:fill;"></video>
+    <select id="cameraselect" style="display:none;position:absolute;"></select>
     <style>
         .results-container {
             background: rgba(0,0,0,0.5);
@@ -21,74 +26,132 @@
             text-shadow: 1px 1px black;
         }
     </style>
-</head>
-<body>
-<div id="scanner" style="display:none;">
-    <video class="dbrScanner-video" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline  style="z-index:0;width:100%;height:100%;position:absolute;left:0;top:0;object-fit:fill;" ></video>
-    <canvas class="dbrScanner-cvs-drawarea" style="width:100%;height:100%;position:absolute;left:0;top:0;"></canvas>
-    <select class="dbrScanner-sel-camera" style="z-index:999;margin:0 auto;position:absolute;left:0;top:0;height:30px;"></select>
-    <select class="dbrScanner-sel-resolution" style="z-index:999;position:absolute;left:0;top:30px;"></select>
 </div>
 <div class="results-container">
-    <pre id="results-pre">Click the button to start scanning.
+    <pre id="results-pre">Result:
     </pre>
 </div>
-<input type="button" value="Start Scanning" onclick="startScanning();" />
 <script>
-let scanner = null;
-var previousResultsUpdatedTime = 0;
+var interval = null;
+var decoding = false;
+let reader = null;
+initDBR();
 
+var platform = "";
+document.getElementById("cameraselect").onchange=onCameraChanged;
 document.addEventListener('deviceready', onDeviceReady, false);
 
+async function initDBR(){
+    reader = await Dynamsoft.DBR.BarcodeReader.createInstance();
+}
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
     alert("device ready.");
-    // Just for iOS devices.
-    initForPlatforms();
-    init();
-}
-
-
-async function init(){
-    scanner = await Dynamsoft.DBR.BarcodeScanner.createInstance();
-    await scanner.setUIElement(document.getElementById('scanner'));
-    scanner.onFrameRead = results => {
-        //handle barcode results
-        showResults(results);
-    };
-    scanner.onUnduplicatedRead = (txt, result) => {
-    };
-}
-
-async function startScanning(){
-    if (scanner==null){
-        alert("Please wait for the initialization of the scanner.")
-        return;
+    platform = initForPlatforms();
+    if (platform == "browser"){
+        loadDevices();
+        document.getElementById("cameraselect").style.display = "";
     }
-    await scanner.show();
+    play();
 }
 
-function showResults(results){
-    var currentTime = new Date().getTime();
-    if (currentTime - previousResultsUpdatedTime > 1000){
-        var resultsPre = document.getElementById("results-pre");
-        var content = "";
-        if (results.length == 0) {
-            content = ""; //No barcodes found
-        } else
-        {
-            content = "Found "+ results.length+ " barcode(s)\n";
-        }
-        for(let i = 0; i < results.length; i++){
-            content = content + results[i].barcodeText + "\n";
-        }
-        resultsPre.innerHTML = content+"\n";
-        if (content!=""){
-            previousResultsUpdatedTime = currentTime;
+function play(deviceId) {
+    var constraints = {};
+    if (platform == 'browser'){
+        if (!!deviceId){
+            constraints = {
+                video: {deviceId: deviceId},
+                audio: false
+            }
+        }else{
+            constraints = {
+                video: true,
+                audio: false
+            }
         }
     }
+    else{
+        var mode = "environment";
+        constraints = {
+            video: {
+                facingMode: { exact: mode }
+            },
+            audio: false
+        }
+    }
+    
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+
+        var localVideoEl = document.getElementsByClassName("camera")[0];
+        // Attach local stream to video element
+        localVideoEl.srcObject = stream;
+        startDecoding();
+
+    }).catch(function(err) {
+        console.error('getUserMediaError', err, err.stack);
+alert("error");
+        alert(err.stack);
+    });
 }
+
+function loadDevices(){
+    var cameraselect = document.getElementById("cameraselect");
+    if (platform == "browser"){
+        navigator.mediaDevices.enumerateDevices().then(async function(devices) {
+            for (var i=0;i<devices.length;i++){
+                var device = devices[i];
+                if (device.kind == 'videoinput'){
+                    var label = device.label;
+                    cameraselect.add(new Option(label,device.deviceId));
+                }
+            }
+        });
+    }
+}
+
+function onCameraChanged(){
+    var cameraselect = document.getElementById("cameraselect");
+    var deviceId = cameraselect.selectedOptions[0].value;
+    play(deviceId);
+}
+
+function startDecoding(){
+    clearInterval(interval)
+    interval = setInterval(captureAndDecode, 10);
+}
+
+async function captureAndDecode(){
+    var video = document.getElementsByClassName("camera")[0];
+    if (reader!=null) {
+        if (decoding==true){
+            //Still decoding. Skip.
+            return;
+        }
+        decoding=true;
+        var results = await reader.decode(video);
+        decoding=false;
+        console.log(results);
+        onFrameRead(results);
+    }
+}
+
+function onFrameRead(results){
+    var resultsPre = document.getElementById("results-pre");
+    var content = "";
+    if (results.length == 0) {
+        content = ""; //No barcodes found
+    } else
+    {
+        content = "Found "+ results.length+ " barcode(s)\n";
+    }
+    for(let i = 0; i < results.length; i++){
+        content = content + results[i].barcodeText + "\n";
+    }
+    resultsPre.innerHTML = content+"\n";
+}
+
 </script>
 </body>
 </html>
+
