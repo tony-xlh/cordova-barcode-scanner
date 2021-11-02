@@ -40,6 +40,7 @@
 <script>
 var interval = null;
 var decoding = false;
+var initialized = false;
 let reader = null;
 var localStream;
 var platform = "";
@@ -48,7 +49,16 @@ document.addEventListener('deviceready', onDeviceReady, false);
 document.getElementsByClassName("camera")[0].addEventListener('loadeddata',onPlayed, false);
 
 async function initDBR(){
-    reader = await Dynamsoft.DBR.BarcodeReader.createInstance();
+    if (platform == "iOS"){
+        cordova.plugins.DBR.init("",onInit);
+    }else{
+        reader = await Dynamsoft.DBR.BarcodeReader.createInstance();
+        onInit();
+    }
+}
+
+function onInit(){
+    initialized=true;
 }
 
 function onDeviceReady() {
@@ -97,6 +107,7 @@ function play(deviceId) {
         var camera = document.getElementsByClassName("camera")[0];
         // Attach local stream to video element
         camera.srcObject = stream;
+        onPlayed();
 
     }).catch(function(err) {
         console.error('getUserMediaError', err, err.stack);
@@ -133,7 +144,7 @@ function startDecoding(){
 
 async function captureAndDecode(){
     var video = document.getElementsByClassName("camera")[0];
-    if (reader!=null) {
+    if (initialized==true) {
         if (decoding==true){
             //Still decoding. Skip.
             return;
@@ -141,8 +152,7 @@ async function captureAndDecode(){
         
         if (platform == "iOS"){
             video.render.save(function (data) {
-                alert(data);
-                decode(data);
+                cordova.plugins.DBR.decode(data,onDecode);
             });
         }else{
             decode(video);
@@ -161,6 +171,11 @@ async function decode(data){
     }
     decoding=false;
     console.log(results);
+    onFrameRead(results);
+}
+
+function onDecode(){
+    var results = arguments;
     onFrameRead(results);
 }
 
@@ -197,7 +212,11 @@ function showOverlayOnSVG(results){
     svg.innerHTML=""
     for(let i = 0; i < results.length; i++){
         var result = results[i];
-        var points = getPointsData(result.localizationResult);
+        if ("x1" in result){
+            var points = getPointsData(result);
+        }else{
+            var points = getPointsData(result.localizationResult);
+        }
         var a = document.createElementNS("http://www.w3.org/2000/svg","a");
         var polygon = document.createElementNS("http://www.w3.org/2000/svg","polygon");
         polygon.setAttribute("points",points);
