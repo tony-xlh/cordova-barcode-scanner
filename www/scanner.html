@@ -38,7 +38,7 @@
     </pre>
 </div>
 <script>
-var videoWidth = 0;
+var frameWidth = 0;
 var interval = null;
 var decoding = false;
 var initialized = false;
@@ -99,9 +99,11 @@ function play(deviceId) {
         }
     }
     
-    //constraints.video.width = { ideal: 1280 };
-    //constraints.video.height = { ideal: 1280 };
-    //console.log(constraints);
+    //if (platform != 'browser'){
+    //    constraints.video.width = { ideal: 720 };
+    //    constraints.video.height = { ideal: 1280 };
+    //    console.log(constraints);
+    //}
     
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         localStream = stream;
@@ -139,7 +141,8 @@ function onCameraChanged(){
 
 function startDecoding(){
     clearInterval(interval)
-    interval = setInterval(captureAndDecode, 1000);
+    //1000/25=40
+    interval = setInterval(captureAndDecode, 40);
 }
 
 async function captureAndDecode(){
@@ -152,6 +155,10 @@ async function captureAndDecode(){
         
         if (platform == "iOS"){
             video.render.save(function (data) {
+                if (frameWidth==0){
+                    getImgSizeAndUpdateSVGViewBox(data);
+                }
+                decoding=true;
                 cordova.plugins.DBR.decode(data,onDecode);
             });
         }else{
@@ -159,6 +166,20 @@ async function captureAndDecode(){
         }
     }
 }
+
+function getImgSizeAndUpdateSVGViewBox(data){
+    var img = document.createElement("img");
+    img.src = "data:image/jpeg;base64,"+data;
+    img.onload=function(){
+        //alert(img.naturalWidth);
+        //alert(img.naturalHeight);
+        if (img.naturalWidth!=frameWidth){
+            frameWidth = img.naturalWidth;
+            updateSVGViewBox(img.naturalWidth,img.naturalHeight);
+        }
+    }
+}
+
 
 async function decode(data){
     decoding=true;
@@ -175,6 +196,7 @@ async function decode(data){
 }
 
 function onDecode(){
+    decoding=false;
     var results = arguments;
     onFrameRead(results);
 }
@@ -192,8 +214,8 @@ function onPlayed(){
 function updateSVGViewBoxBasedOnVideoSize(){
     var camera = document.getElementsByClassName("camera")[0];
     updateSVGViewBox(camera.videoWidth,camera.videoHeight);
-    videoWidth = camera.videoWidth;
-    alert("Video width: "+videoWidth);
+    frameWidth = camera.videoWidth;
+    //alert("Video width: "+frameWidth);
 }
 
 function onFrameRead(results){
@@ -218,9 +240,6 @@ function updateSVGViewBox(width,height){
 }
 
 function showOverlayOnSVG(results){
-    if (videoWidth==0){
-        updateSVGViewBoxBasedOnVideoSize();
-    }
     var svg = document.getElementsByTagName("svg")[0];
     svg.innerHTML=""
     for(let i = 0; i < results.length; i++){
