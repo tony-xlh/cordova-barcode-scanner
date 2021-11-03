@@ -38,6 +38,7 @@
     </pre>
 </div>
 <script>
+var videoWidth = 0;
 var interval = null;
 var decoding = false;
 var initialized = false;
@@ -107,7 +108,6 @@ function play(deviceId) {
         var camera = document.getElementsByClassName("camera")[0];
         // Attach local stream to video element
         camera.srcObject = stream;
-        onPlayed();
 
     }).catch(function(err) {
         console.error('getUserMediaError', err, err.stack);
@@ -180,10 +180,20 @@ function onDecode(){
 }
 
 function onPlayed(){
+    if (platform=="iOS"){
+        console.log("iOS should wait for the video is resized.");
+    }
+    else{
+        updateSVGViewBoxBasedOnVideoSize();
+    }
+    startDecoding();
+}
+
+function updateSVGViewBoxBasedOnVideoSize(){
     var camera = document.getElementsByClassName("camera")[0];
     updateSVGViewBox(camera.videoWidth,camera.videoHeight);
-    alert("Current resolution: "+camera.videoWidth+"x"+camera.videoHeight);
-    startDecoding();
+    videoWidth = camera.videoWidth;
+    alert("Video width: "+videoWidth);
 }
 
 function onFrameRead(results){
@@ -208,6 +218,9 @@ function updateSVGViewBox(width,height){
 }
 
 function showOverlayOnSVG(results){
+    if (videoWidth==0){
+        updateSVGViewBoxBasedOnVideoSize();
+    }
     var svg = document.getElementsByTagName("svg")[0];
     svg.innerHTML=""
     for(let i = 0; i < results.length; i++){
