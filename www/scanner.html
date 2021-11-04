@@ -50,16 +50,17 @@ document.addEventListener('deviceready', onDeviceReady, false);
 document.getElementsByClassName("camera")[0].addEventListener('loadeddata',onPlayed, false);
 
 async function initDBR(){
-    if (platform == "iOS"){
-        cordova.plugins.DBR.init("",onInit);
-    }else{
+    if (platform == "browser"){
         reader = await Dynamsoft.DBR.BarcodeReader.createInstance();
         onInit();
+    }else{
+        cordova.plugins.DBR.init("",onInit);
     }
 }
 
 function onInit(){
     initialized=true;
+    alert("dbr inited");
 }
 
 function onDeviceReady() {
@@ -69,6 +70,13 @@ function onDeviceReady() {
     if (platform == "browser"){
         loadDevices();
         document.getElementById("cameraselect").style.display = "";
+    }
+    
+    if (platform != "iOS"){
+        var canvas = document.createElement("canvas");
+        canvas.style.display="none";
+        canvas.id="hiddenCVS";
+        document.body.appendChild(canvas);
     }
     initDBR();
     play();
@@ -150,7 +158,7 @@ function onCameraChanged(){
 function startDecoding(){
     clearInterval(interval)
     //1000/25=40
-    interval = setInterval(captureAndDecode, 80);
+    interval = setInterval(captureAndDecode, 1000);
 }
 
 async function captureAndDecode(){
@@ -169,10 +177,33 @@ async function captureAndDecode(){
                 decoding=true;
                 cordova.plugins.DBR.decode(data,onDecode);
             });
-        }else{
-            decode(video);
+        }else {
+            var base64 = captureFrame();
+            //alert(base64);
+            //var base64="iVBORw0KGgoAAAANSUhEUgAAAEUAAABFAQAAAAA09haEAAAAHXRFWHRTb2Z0d2FyZQBWaW50YVNvZnRJbWFnaW5nLk5FVAAkXsoAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADDSURBVHhefdLBDYMwDAVQS9zLApWyhm9ZCRYo6QJ0pd6yhqVMwM2HCPeHll7iltOTrMj/h5B9PnUlRHViIiZPxbQS287kKrEsKhdMf2j8Tj1NfJ7tZCq3c28nJC3rmbkT6pYUzY6+nUqiVmdUZHa05bDGkNDI08phy9LOOhKKMtrwUNxkr7o8h3vGdZGnIzO1vZ7QF5kDGnnCn5GJDBfiKnHZY51b318qyPye9tryFZnbtJMpwoZ21hGSypzbXk9/3+QLsO2F7OqelPAAAAAASUVORK5CYII=";
+            if (platform == "Android"){
+                decoding=true;
+                cordova.plugins.DBR.decode(base64,onDecode);
+            }else{
+                decode(video);
+            }
+            
         }
     }
+}
+
+function captureFrame() {
+    var cvs = document.getElementById("hiddenCVS");
+    var camera = document.getElementsByClassName("camera")[0];
+    cvs.width = camera.videoWidth;
+    cvs.height = camera.videoHeight;
+    //alert("draw start");
+    cvs.getContext('2d').drawImage(camera, 0, 0, camera.videoWidth,camera.videoHeight);
+    //alert("draw done");
+    var dataURL = cvs.toDataURL('image/jpeg', 1.0); 
+    //alert(dataURL);
+    var base64 = dataURL.replace("data:image/jpeg;base64,","");
+    return base64;
 }
 
 function getImgSizeAndUpdateSVGViewBox(data){
@@ -205,7 +236,16 @@ async function decode(data){
 
 function onDecode(){
     decoding=false;
-    var results = arguments;
+    if (platform == "Android"){
+        var results = arguments[0];
+    }else{
+        var results = arguments;
+    }
+    
+    //var result = results[0];
+    //for (let key in result){
+    //    alert(result[key]);
+    //}
     onFrameRead(results);
 }
 
