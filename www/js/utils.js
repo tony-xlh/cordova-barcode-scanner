@@ -2,7 +2,7 @@ function initForPlatforms(){
     var cordova = window.cordova;
     var platform = window.device.platform;
     if (platform == 'iOS') {
-            alert("is ios");
+            //alert("is ios");
             // Expose WebRTC Globals
             if (cordova && cordova.plugins && cordova.plugins.iosrtc) {
                 cordova.plugins.iosrtc.registerGlobals();
@@ -14,7 +14,7 @@ function initForPlatforms(){
 function askForAndroidPermissions(){
     var platform = window.device.platform;
     if (platform == 'Android'){
-        alert("is android");
+        //alert("is android");
         var permissions = cordova.plugins.permissions;
         permissions.hasPermission(permissions.CAMERA, function (status) {
             if (status.hasPermission) {

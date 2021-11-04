@@ -11,7 +11,7 @@
 <body style="background-color:transparent;">
 <div>
     <svg style="width:100%;height:100%;position:absolute;left:0;top:0;"> </svg>
-    <video class="camera" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline style="z-index:-1;width:100%;height:100%;position:absolute;left:0;top:0;"></video>
+    <video class="camera" muted autoplay="autoplay" playsinline="playsinline" webkit-playsinline style="z-index:-1;width:100%;height:100%;position:absolute;left:0;top:0;object-fit:fill;"></video>
     <select id="cameraselect" style="display:none;position:absolute;"></select>
     <style>
         .results-container {
@@ -64,7 +64,7 @@ function onInit(){
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
-    alert("device ready.");
+    //alert("device ready.");
     platform = initForPlatforms();
     if (platform == "browser"){
         loadDevices();
@@ -74,7 +74,7 @@ function onDeviceReady() {
     play();
 }
 
-function play(deviceId) {
+function play(deviceId, HDUnsupported) {
     var constraints = {};
     if (platform == 'browser'){
         if (!!deviceId){
@@ -97,7 +97,12 @@ function play(deviceId) {
             },
             audio: false
         }
+        if (!HDUnsupported){
+            constraints.video.width = {exact: 1280};
+            constraints.video.height = {exact: 720};
+        }
     }
+    
     
     //if (platform != 'browser'){
     //    constraints.video.width = { ideal: 720 };
@@ -115,6 +120,9 @@ function play(deviceId) {
         console.error('getUserMediaError', err, err.stack);
         alert("getUserMediaError");
         alert(err.stack);
+        if (!HDUnsupported){
+            play(deviceId,true);
+        }
     });
 }
 
@@ -191,7 +199,7 @@ async function decode(data){
         alert(ex.stack);
     }
     decoding=false;
-    console.log(results);
+    //console.log(results);
     onFrameRead(results);
 }
 
@@ -241,6 +249,7 @@ function updateSVGViewBox(width,height){
 
 function showOverlayOnSVG(results){
     var svg = document.getElementsByTagName("svg")[0];
+    svg.setAttribute("preserveAspectRatio","none");
     svg.innerHTML=""
     for(let i = 0; i < results.length; i++){
         var result = results[i];
