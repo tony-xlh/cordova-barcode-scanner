@@ -1,8 +1,8 @@
 {
-  "name": "com.dynamsoft.dbrjs",
-  "displayName": "DBRJS",
+  "name": "com.dynamsoft.dbr",
+  "displayName": "DBR",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "A sample Apache Cordova Barocde Scanner using Dynamsoft Barcode Reader",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,21 +21,19 @@
       "cordova-plugin-dynamsoft-barcode-reader": {}
     },
     "platforms": [
-      "android",
-      "browser",
-      "ios"
+      "ios",
+      "browser"
     ]
   },
   "devDependencies": {
     "cordova": "^10.0.0",
-    "cordova-android": "^8.1.0",
-    "cordova-browser": "^5.0.4",
+    "cordova-browser": "^6.0.0",
     "cordova-custom-config": "^5.1.0",
     "cordova-ios": "^6.2.0",
     "cordova-plugin-android-permissions": "^1.1.2",
     "cordova-plugin-background-mode": "^0.7.3",
     "cordova-plugin-device": "^2.0.3",
-    "cordova-plugin-dynamsoft-barcode-reader": "git+https://github.com/xulihang/cordova-plugin-dynamsoft-barcode-reader#main",
+    "cordova-plugin-dynamsoft-barcode-reader": "git+https://github.com/xulihang/cordova-plugin-dynamsoft-barcode-reader.git",
     "cordova-plugin-iosrtc": "git+https://gitee.com/xulihang/cordova-plugin-iosrtc.git#master",
     "cordova-plugin-whitelist": "^1.3.4",
     "plugin": "^0.3.3"

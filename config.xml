@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.dynamsoft.dbrjs" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>DBRJS</name>
+<widget id="com.dynamsoft.dbr" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>DBR</name>
     <description>
-        A sample Apache Cordova iOSRTC application that use cordova-plugin-iosrtc
+        A sample Apache Cordova Barocde Scanner using Dynamsoft Barcode Reader
     </description>
-    <author email="support+cordova-rtc@sylaps.com" href="https://github.com/cordova-rtc">
-        Cordova-RTC Team
+    <author email="tony@dynamsoft.com" href="https://github.com/xulihang">
+        Xu Lihang
     </author>
     <content src="index.html" />
     <access origin="*" subdomains="true" />
@@ -69,6 +69,4 @@
     <plugin name="cordova-plugin-iosrtc" spec="https://gitee.com/xulihang/cordova-plugin-iosrtc#master">
         <variable name="MANUAL_INIT_AUDIO_DEVICE" value="FALSE" />
     </plugin>
-    <engine name="android" spec="^8.1.0" />
-    <engine name="browser" spec="^5.0.4" />
 </widget>
