@@ -228,13 +228,8 @@ async function decode(data){
     onFrameRead(results);
 }
 
-function onDecode(){
+function onDecode(results){
     decoding=false;
-    if (platform == "Android"){
-        var results = arguments[0];
-    }else{
-        var results = arguments;
-    }
     onFrameRead(results);
 }
 
