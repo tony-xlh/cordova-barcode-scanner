@@ -42,7 +42,7 @@
         }
     </style>
 </div>
-<div class="torch" on="false" onclick="toggleTorch(this)">
+<div class="torch" on="false" onclick="toggleTorch()">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 435 435" xml:space="preserve">
     <g>
         <path d="M292.5,105h-150c-13.807,0-25,11.192-25,25v50c0,12.313,8.903,22.538,20.621,24.609l8.977,206.477 C147.68,424.458,158.69,435,172.075,435h90.851c13.385,0,24.395-10.542,24.977-23.914l8.977-206.477 C308.597,202.538,317.5,192.313,317.5,180v-50C317.5,116.192,306.307,105,292.5,105z M258.138,405h-81.276l-9.814-225.742 l-19.547-3.455V135h140v40.803l-19.547,3.455L258.138,405z"/>
@@ -155,10 +155,11 @@ function play(deviceId, HDUnsupported) {
     
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         localStream = stream;
-        checkIfTorchSupported();
+        
         var camera = document.getElementsByClassName("camera")[0];
         // Attach local stream to video element
         camera.srcObject = stream;
+        checkIfTorchSupported();
 
     }).catch(function(err) {
         console.error('getUserMediaError', err, err.stack);
@@ -335,7 +336,8 @@ function getPointsData(lr){
     return pointsData;
 }
 
-function toggleTorch(btn){
+function toggleTorch(){
+    var btn = document.getElementsByClassName("torch")[0];
     var isOn = btn.getAttribute("on");
     var newStatus;
     if (isOn=="false"){
@@ -371,11 +373,13 @@ async function checkIfTorchSupported(){
         const track = localStream.getVideoTracks()[0];
         const imageCapture = new ImageCapture(track)
         const photoCapabilities = await imageCapture.getPhotoCapabilities();
+        //for (let key in photoCapabilities){alert(key)};
         if ("fillLightMode" in photoCapabilities){
             supported = true;
         }
-    }catch{
+    }catch (error) {
         console.log("Torch unsupported");
+        alert("Torch unsupported.");
     }
     if (supported==false){
         document.getElementsByClassName("torch")[0].style.display="none";
