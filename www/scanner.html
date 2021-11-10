@@ -163,16 +163,22 @@ function play(deviceId, HDUnsupported) {
 
     }).catch(function(err) {
         console.error('getUserMediaError', err, err.stack);
-        alert("getUserMediaError");
-        alert(err.stack);
+        alert(err.message);
         if (!HDUnsupported){
             play(deviceId,true);
         }
     });
 }
 
+function stop(){
+    localStream.getTracks().forEach(track => track.stop()) 
+}
+
 function loadDevices(){
+    var constraints = {video: true, audio: false};
+    navigator.mediaDevices.getUserMedia(constraints);
     var cameraselect = document.getElementById("cameraselect");
+    cameraselect.innerHTML="";
     if (platform == "browser"){
         navigator.mediaDevices.enumerateDevices().then(async function(devices) {
             for (var i=0;i<devices.length;i++){
@@ -189,6 +195,7 @@ function loadDevices(){
 function onCameraChanged(){
     var cameraselect = document.getElementById("cameraselect");
     var deviceId = cameraselect.selectedOptions[0].value;
+    stop();
     play(deviceId);
 }
 
