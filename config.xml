@@ -10,7 +10,6 @@
     <content src="index.html" />
     <access origin="*" subdomains="true" />
     <allow-navigation href="https://*.ngrok.io/*" />
-    <preference name="AppendUserAgent" value="iOSRTC Sample" />
     <allow-intent href="ws://*/*" />
     <allow-intent href="wss://*/*" />
     <allow-intent href="http://*/*" />
@@ -19,44 +18,8 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <preference name="AppendUserAgent" value="iOSRTC Sample" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="Fullscreen" value="false" />
-    <platform name="android">
-        <allow-intent href="market:*" />
-        <config-file parent="/*" target="AndroidManifest.xml">
-            <uses-permission android:name="android.permission.CAMERA" />
-        </config-file>
-    </platform>
-    <platform name="ios">
-        <allow-intent href="itms:*" />
-        <allow-intent href="itms-apps:*" />
-        <preference name="WKWebViewOnly" value="true" />
-        <preference name="Orientation" value="all" />
-        <preference name="target-device" value="universal" />
-        <preference name="StatusBarOverlaysWebView" value="false" />
-        <preference name="StatusBarBackgroundColor" value="#000000" />
-        <preference name="StatusBarStyle" value="blacktranslucent" />
-        <preference name="BackgroundColor" value="#FFFFFF" />
-        <preference name="DetectMediaTypes" value="true" />
-        <preference name="WebViewBounce" value="false" />
-        <preference name="KeyboardShrinksView" value="true" />
-        <preference name="allowInlineMediaPlayback" value="true" />
-        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
-        <preference name="AllowBackForwardNavigationGestures" value="true" />
-        <preference name="Allow3DTouchLinkPreview" value="false" />
-        <preference name="AllowInlineMediaPlayback" value="true" />
-        <feature name="CDVWKWebViewEngine">
-            <param name="ios-package" value="CDVWKWebViewEngine" />
-        </feature>
-        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
-        <config-file parent="NSCameraUsageDescription" target="*-Info.plist">
-            <string>This application requires access to the devices camera to record and send the users camera image via video chat functionality</string>
-        </config-file>
-        <config-file parent="NSMicrophoneUsageDescription" target="*-Info.plist">
-            <string>This application requires access to the devices microphone to record and send the users voice message via video/voice chat functionality</string>
-        </config-file>
-    </platform>
-    <plugin name="cordova-plugin-whitelist" spec="^1.3.4" />
-    <plugin name="cordova-plugin-dynamsoft-barcode-reader" spec="^0.0.4" />
 </widget>

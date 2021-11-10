@@ -1,0 +1,11 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "DBR",
+  "short_name": "DBR",
+  "version": "com.dynamsoft.dbr",
+  "description": "A sample Apache Cordova Barocde Scanner using Dynamsoft Barcode Reader",
+  "author": "Xu Lihang",
+  "icons": [],
+  "start_url": "index.html"
+}
