@@ -70,8 +70,8 @@ var initialized = false;
 let reader = null;
 var localStream;
 var platform = "";
-document.getElementById("cameraselect").onchange=onCameraChanged;
 document.addEventListener('deviceready', onDeviceReady, false);
+document.getElementById("cameraselect").onchange=onCameraChanged;
 document.getElementsByClassName("camera")[0].addEventListener('loadeddata',onPlayed, false);
 updateTorchStyle();
 
@@ -92,7 +92,7 @@ function onInit(){
         cordova.plugins.DBR.initRuntimeSettingsWithString(QRCodeTemplate,onInitSettings);
         play();
     }else{
-        tryPlayBackCamera();
+        setTimeout("tryPlayBackCamera()", 1000);
     }
     
 }
@@ -194,7 +194,9 @@ function tryPlayBackCamera(){
 }
 
 function stop(){
-    localStream.getTracks().forEach(track => track.stop());
+    if (localStream){
+        localStream.getTracks().forEach(track => track.stop());
+    }
 }
 
 function loadDevices(){
