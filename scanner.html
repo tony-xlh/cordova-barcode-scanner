@@ -120,6 +120,7 @@ function onDeviceReady() {
 }
 
 function play(deviceId, HDUnsupported) {
+    stop();
     var constraints = {};
     if (platform == 'browser'){
         if (!!deviceId){
@@ -194,14 +195,19 @@ function tryPlayBackCamera(){
 }
 
 function stop(){
-    if (localStream){
-        localStream.getTracks().forEach(track => track.stop());
+    try{
+        if (localStream){
+            localStream.getTracks().forEach(track => track.stop());
+        }
+    } catch (e){
+        alert(e.message);
     }
 }
 
 function loadDevices(){
     var constraints = {video: true, audio: false};
     navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+        localStream = stream;
         var cameraselect = document.getElementById("cameraselect");
         cameraselect.innerHTML="";
         if (platform == "browser"){
@@ -223,7 +229,6 @@ function loadDevices(){
 function onCameraChanged(){
     var cameraselect = document.getElementById("cameraselect");
     var deviceId = cameraselect.selectedOptions[0].value;
-    stop();
     play(deviceId);
 }
 
